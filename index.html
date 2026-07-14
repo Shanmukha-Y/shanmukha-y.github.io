@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shanmukha Yenneti — Autonomy you can audit</title>
+<meta name="description" content="Notes on agentic AI, security, and machine learning — autonomous systems and the guardrails they deserve. By Shanmukha Yenneti.">
+
+<link rel="canonical" href="https://shanmukha-y.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Shanmukha Yenneti — Autonomy you can audit">
+<meta property="og:description" content="Notes on agentic AI, security, and machine learning — autonomous systems and the guardrails they deserve.">
+<meta property="og:url" content="https://shanmukha-y.github.io/">
+<meta property="og:image" content="https://shanmukha-y.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Shanmukha Yenneti — Autonomy you can audit">
+<meta name="twitter:description" content="Notes on agentic AI, security, and machine learning — autonomous systems and the guardrails they deserve.">
+<meta name="twitter:image" content="https://shanmukha-y.github.io/assets/og.png">
+
+<meta name="theme-color" content="#F3F4F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191B18" media="(prefers-color-scheme: dark)">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F3F4F0;
+    --panel:#EAECE4;
+    --ink:#1B1E1A;
+    --ink-soft:#5A6058;
+    --line:#D5D9CC;
+    --amber:#9A4E07;
+    --amber-bright:#C06A10;
+    --serif:"IBM Plex Serif", Georgia, serif;
+    --mono:"IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#191B18;
+      --panel:#22241F;
+      --ink:#E7E9E1;
+      --ink-soft:#9BA192;
+      --line:#383C33;
+      --amber:#E0912E;
+      --amber-bright:#F0A94B;
+    }
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:660px;
+    margin:0 auto;
+    padding:56px 24px 72px;
+  }
+
+  a{color:inherit; text-decoration:none;}
+  a:focus-visible{outline:2px solid var(--amber); outline-offset:3px; border-radius:2px;}
+
+  /* ---- masthead ---- */
+  .mast{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:64px;
+  }
+  .wordmark{
+    font-family:var(--mono);
+    font-size:15px;
+    letter-spacing:.02em;
+    color:var(--ink);
+  }
+  .wordmark .prompt{color:var(--amber); margin-right:.55em;}
+  .cursor{
+    display:inline-block;
+    width:.55em; height:1.05em;
+    margin-left:.25em;
+    background:var(--amber);
+    vertical-align:text-bottom;
+    animation:blink 1.15s steps(1) infinite;
+  }
+  @keyframes blink{50%{opacity:0;}}
+  @media (prefers-reduced-motion: reduce){ .cursor{animation:none;} }
+  .mast-loc{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+
+  /* ---- statement ---- */
+  .statement h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:clamp(36px, 7vw, 54px);
+    line-height:1.1;
+    letter-spacing:-0.015em;
+    max-width:14ch;
+  }
+  .statement h1 em{
+    font-style:italic;
+    font-weight:500;
+    color:var(--amber);
+  }
+  .statement .bio{
+    margin-top:28px;
+    max-width:58ch;
+    color:var(--ink);
+    font-size:17.5px;
+  }
+  .statement .bio + .bio{margin-top:14px;}
+  .statement .bio a{
+    border-bottom:1px solid var(--line);
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .statement .bio a:hover{color:var(--amber); border-color:var(--amber);}
+
+  /* ---- section eyebrows ---- */
+  section{margin-top:76px;}
+  .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:26px;
+  }
+  .eyebrow::after{
+    content:"";
+    flex:1;
+    border-top:1px solid var(--line);
+  }
+
+  /* ---- the log (signature element) ---- */
+  .log{list-style:none;}
+  .log li + li{margin-top:18px;}
+  .entry{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    flex-wrap:wrap;
+  }
+  .entry-no{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-soft);
+    flex:0 0 auto;
+    transition:color .15s ease;
+  }
+  .entry-title{
+    font-size:19px;
+    font-weight:500;
+    line-height:1.35;
+    transition:color .15s ease;
+  }
+  .leader{
+    flex:1 1 40px;
+    min-width:40px;
+    border-bottom:2px dotted var(--line);
+    transform:translateY(-4px);
+  }
+  .entry-meta{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+    flex:0 0 auto;
+    white-space:nowrap;
+  }
+  .entry:hover .entry-title{color:var(--amber);}
+  .entry:hover .entry-no{color:var(--amber);}
+  .log-note{
+    margin-top:30px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  .log-note .prompt{color:var(--amber); margin-right:.5em;}
+
+  /* ---- work ---- */
+  .work{list-style:none;}
+  .work li{
+    display:grid;
+    grid-template-columns:112px 1fr;
+    gap:18px;
+    align-items:baseline;
+  }
+  .work li + li{margin-top:20px;}
+  .work .tag{
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--amber);
+  }
+  .work .desc{font-size:16.5px; color:var(--ink);}
+  .work .desc a{
+    border-bottom:1px solid var(--line);
+    transition:border-color .15s ease, color .15s ease;
+  }
+  .work .desc a:hover{color:var(--amber); border-color:var(--amber);}
+  @media (max-width:480px){
+    .work li{grid-template-columns:1fr; gap:4px;}
+  }
+
+  /* ---- footer ---- */
+  footer{
+    margin-top:88px;
+    padding-top:26px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .links{
+    font-family:var(--mono);
+    font-size:13px;
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .links a{
+    color:var(--ink-soft);
+    transition:color .15s ease;
+  }
+  .links a:hover{color:var(--amber);}
+  .colophon{
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="mast">
+    <div class="wordmark">
+      <span class="prompt">$</span>shanmukha yenneti<span class="cursor" aria-hidden="true"></span>
+    </div>
+    <div class="mast-loc">agentic ai · security · ml · cv</div>
+  </header>
+
+  <div class="statement">
+    <h1>Autonomy you can <em>audit</em>.</h1>
+    <p class="bio">
+      I build and secure autonomous systems. Right now that means security engineering
+      at Visa — agents for cloud defense that detect, reason, and remediate inside
+      guardrails, leaving a trail you can trust.
+    </p>
+    <p class="bio">
+      Before that: agentic ML platforms, multi-agent simulations where thousands of
+      LLM-driven adversaries stress-test a live rules engine, and years of computer-vision
+      research — synthetic data, learning from scarce labels, medical imaging. Three
+      patents, seven publications, one through-line: autonomy that holds up in adversarial,
+      high-stakes environments.
+    </p>
+  </div>
+
+  <section aria-label="Writing">
+    <h2 class="eyebrow">The log</h2>
+    <ul class="log">
+      <li>
+        <a class="entry" href="policy-as-code-agent-guardrails.html">
+          <span class="entry-no">003</span>
+          <span class="entry-title">Policy-as-code is the guardrail layer autonomous agents need</span>
+          <span class="leader" aria-hidden="true"></span>
+          <span class="entry-meta">2026-08 · essay</span>
+        </a>
+      </li>
+      <li>
+        <a class="entry" href="#">
+          <span class="entry-no">002</span>
+          <span class="entry-title">What model risk management taught me about governing agents</span>
+          <span class="leader" aria-hidden="true"></span>
+          <span class="entry-meta">2026-07 · essay</span>
+        </a>
+      </li>
+      <li>
+        <a class="entry" href="#">
+          <span class="entry-no">001</span>
+          <span class="entry-title">Why this log exists</span>
+          <span class="leader" aria-hidden="true"></span>
+          <span class="entry-meta">2026-07 · note</span>
+        </a>
+      </li>
+    </ul>
+    <p class="log-note"><span class="prompt">$</span>append-only. new entries land here first, then on x.</p>
+  </section>
+
+  <section aria-label="Work">
+    <h2 class="eyebrow">Elsewhere</h2>
+    <ul class="work">
+      <li>
+        <span class="tag">simulation</span>
+        <span class="desc">Built an agent-based adversarial simulator: 100+ LLM-driven agents attacking a live rules engine, so defense changes get rehearsed in minutes instead of shipped on faith.</span>
+      </li>
+      <li>
+        <span class="tag">patents</span>
+        <span class="desc">Three filings across agentic commerce, causal population simulation, and autonomous model-retraining decisions.</span>
+      </li>
+      <li>
+        <span class="tag">research</span>
+        <span class="desc">Seven publications across computer vision and medical imaging — synthetic-to-real transfer, self-supervised detection, generative CT synthesis. <a href="https://scholar.google.com/citations?user=YMK3ys4AAAAJ" rel="me">Google Scholar</a>.</span>
+      </li>
+    </ul>
+  </section>
+
+  <footer>
+    <nav class="links" aria-label="Profiles">
+      <a href="https://github.com/Shanmukha-Y" rel="me">github</a>
+      <a href="https://x.com/" rel="me">x</a>
+      <a href="https://www.linkedin.com/in/shanmukha-yenneti/" rel="me">linkedin</a>
+      <a href="mailto:shanmukha.yenneti@gmail.com">email</a>
+      <a href="feed.xml">rss</a>
+    </nav>
+    <span class="colophon">© 2026 · no tracking, just entries</span>
+  </footer>
+
+</div>
+</body>
+</html>
