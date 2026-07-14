@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Policy-as-code is the guardrail layer autonomous agents need — Shanmukha Yenneti</title>
+<meta name="description" content="Prompts are suggestions. Policies are physics. Why autonomous agents acting on real infrastructure need an enforcement layer outside the model — and what that looks like in practice.">
+
+<link rel="canonical" href="https://shanmukha-y.github.io/policy-as-code-agent-guardrails.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Policy-as-code is the guardrail layer autonomous agents need">
+<meta property="og:description" content="Prompts are suggestions. Policies are physics. Why autonomous agents acting on real infrastructure need an enforcement layer outside the model.">
+<meta property="og:url" content="https://shanmukha-y.github.io/policy-as-code-agent-guardrails.html">
+<meta property="og:image" content="https://shanmukha-y.github.io/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Policy-as-code is the guardrail layer autonomous agents need">
+<meta name="twitter:description" content="Prompts are suggestions. Policies are physics. Why autonomous agents acting on real infrastructure need an enforcement layer outside the model.">
+<meta name="twitter:image" content="https://shanmukha-y.github.io/assets/og.png">
+
+<meta name="theme-color" content="#F3F4F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#191B18" media="(prefers-color-scheme: dark)">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:#F3F4F0;
+    --panel:#EAECE4;
+    --ink:#1B1E1A;
+    --ink-soft:#5A6058;
+    --line:#D5D9CC;
+    --amber:#9A4E07;
+    --amber-bright:#C06A10;
+    --syn-string:#57703F;
+    --serif:"IBM Plex Serif", Georgia, serif;
+    --mono:"IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#191B18;
+      --panel:#22241F;
+      --ink:#E7E9E1;
+      --ink-soft:#9BA192;
+      --line:#383C33;
+      --amber:#E0912E;
+      --amber-bright:#F0A94B;
+      --syn-string:#9DB77E;
+    }
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--serif);
+    font-size:18px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:660px;
+    margin:0 auto;
+    padding:44px 24px 72px;
+  }
+  a{color:inherit; text-decoration:none;}
+  a:focus-visible{outline:2px solid var(--amber); outline-offset:3px; border-radius:2px;}
+
+  /* ---- top nav ---- */
+  .crumb{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-bottom:56px;
+    display:inline-block;
+    transition:color .15s ease;
+  }
+  .crumb .prompt{color:var(--amber); margin-right:.5em;}
+  .crumb:hover{color:var(--amber);}
+
+  /* ---- entry header ---- */
+  .entry-line{
+    font-family:var(--mono);
+    font-size:12.5px;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    margin-bottom:18px;
+  }
+  .entry-line .hash{color:var(--amber);}
+  h1{
+    font-weight:600;
+    font-size:clamp(30px, 5.4vw, 42px);
+    line-height:1.16;
+    letter-spacing:-0.012em;
+    max-width:20ch;
+  }
+  .dek{
+    margin-top:18px;
+    font-size:19.5px;
+    line-height:1.55;
+    font-style:italic;
+    font-weight:400;
+    color:var(--ink-soft);
+    max-width:52ch;
+  }
+  .byline{
+    margin-top:22px;
+    padding-bottom:34px;
+    border-bottom:1px solid var(--line);
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+
+  /* ---- prose ---- */
+  article{margin-top:38px;}
+  article p{margin-top:22px; max-width:62ch;}
+  article p:first-of-type{margin-top:0;}
+  article h2{
+    margin-top:52px;
+    font-weight:600;
+    font-size:24px;
+    line-height:1.3;
+    letter-spacing:-0.008em;
+  }
+  article h2 + p{margin-top:14px;}
+  article a{
+    color:var(--amber);
+    border-bottom:1px solid transparent;
+    transition:border-color .15s ease;
+  }
+  article a:hover{border-color:var(--amber);}
+  article strong{font-weight:600;}
+  article em{font-style:italic;}
+
+  blockquote{
+    margin-top:26px;
+    padding-left:22px;
+    border-left:3px solid var(--amber);
+    font-style:italic;
+    font-size:19px;
+    color:var(--ink);
+    max-width:56ch;
+  }
+  blockquote p{margin-top:0;}
+
+  code{
+    font-family:var(--mono);
+    font-size:.86em;
+    background:var(--panel);
+    padding:.12em .4em;
+    border-radius:3px;
+  }
+  pre{
+    margin-top:26px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:20px 22px;
+    overflow-x:auto;
+    line-height:1.6;
+  }
+  pre code{
+    background:none; padding:0;
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  .code-label{
+    font-family:var(--mono);
+    font-size:11.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:26px;
+  }
+  .code-label + pre{margin-top:8px;}
+  .k{color:var(--amber); font-weight:500;}
+  .s{color:var(--syn-string);}
+  .c{color:var(--ink-soft); font-style:italic;}
+
+  .aside{
+    margin-top:26px;
+    font-size:15.5px;
+    color:var(--ink-soft);
+    padding-left:22px;
+    border-left:1px solid var(--line);
+    max-width:56ch;
+  }
+
+  .endmark{
+    margin-top:40px;
+    color:var(--amber);
+    font-size:20px;
+  }
+
+  /* ---- share + pagination ---- */
+  .share{
+    margin-top:44px;
+    padding-top:26px;
+    border-top:1px solid var(--line);
+    font-family:var(--mono);
+    font-size:13px;
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+  }
+  .share a{color:var(--ink-soft); transition:color .15s ease;}
+  .share a:hover{color:var(--amber);}
+  .pager{
+    margin-top:34px;
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+  .pager a{color:var(--ink-soft); transition:color .15s ease; max-width:46%;}
+  .pager a:hover{color:var(--amber);}
+  .pager .dir{color:var(--amber);}
+
+  footer{
+    margin-top:72px;
+    padding-top:24px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--ink-soft);
+  }
+  footer a{transition:color .15s ease;}
+  footer a:hover{color:var(--amber);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="crumb" href="index.html"><span class="prompt">$</span>cd ~ back to the log</a>
+
+  <header>
+    <p class="entry-line">entry 003 · 2026-08-14 · agent-security · <span class="hash">#a3f2c91</span></p>
+    <h1>Policy-as-code is the guardrail layer autonomous agents need</h1>
+    <p class="dek">Prompts are suggestions. Policies are physics. If your agent touches real infrastructure, the difference is the whole game.</p>
+    <p class="byline">shanmukha yenneti · 7 min read</p>
+  </header>
+
+  <article>
+    <p>Every team shipping autonomous agents eventually has the same uncomfortable meeting. The demo went well. The agent triages alerts, proposes remediations, occasionally executes one. Then someone from security or risk asks the question that stalls the room: <strong>"What guarantees that it won't do the wrong thing?"</strong> And someone answers, a little too quickly: "It's in the system prompt."</p>
+
+    <p>That answer should terrify you. A system prompt is an instruction to a probabilistic model. It shapes behavior; it does not bound it. Prompt injection, tool-output poisoning, plain distributional weirdness — there are a dozen well-documented ways an instruction gets ignored, and the model needs to fail only once while holding credentials to something that matters. Years of adversarial ML taught me never to accept "the model will probably catch it" as a control. Security shouldn't accept "the agent will probably not delete the security group" either.</p>
+
+    <p>The fix isn't a better prompt. It's an architectural decision: <strong>the layer that permits an action must live outside the thing that proposes it.</strong></p>
+
+    <h2>Bounded autonomy has a shape</h2>
+
+    <p>The pattern I keep converging on looks like a three-position switch, and I think of it as a maturity ladder rather than a menu. <em>Assistive</em>: the agent recommends, a human executes. <em>Supervised</em>: the agent executes, a human approves first. <em>Bounded</em>: the agent executes alone — but only inside a hard envelope of pre-approved actions, and everything else falls back to a human.</p>
+
+    <p>Most of the value lives at the third position, and most of the risk lives in how you define the envelope. Which is exactly why the envelope can't be prose in a prompt. It has to be code — versioned, reviewed, tested, and enforced at a chokepoint the model cannot route around.</p>
+
+    <blockquote><p>The agent proposes. The policy engine disposes. The model never holds the pen on its own permissions.</p></blockquote>
+
+    <p>This is not a new idea. It's policy-as-code — OPA, Cedar, Sentinel, the machinery platform teams already use for admission control — pointed at a new subject. Instead of gating a Terraform plan or a Kubernetes deployment, the policy gates a <em>tool call</em>. Same engines, same review workflow, same audit story. The novelty is only in what's being governed.</p>
+
+    <h2>What the envelope looks like</h2>
+
+    <p>Concretely: every action an agent can take is a typed request. Before execution, the request hits a policy decision point. A Rego policy for a cloud-remediation agent might say — allow closing an over-permissive security group rule automatically, but only in non-production, only for rules the agent itself flagged, and never during a change freeze:</p>
+
+    <p class="code-label">policy/remediation.rego</p>
+    <pre><code><span class="k">package</span> agent.remediation
+
+<span class="k">default</span> allow := <span class="k">false</span>
+
+<span class="c"># Bounded: auto-execute only inside the envelope</span>
+allow <span class="k">if</span> {
+    input.action.type == <span class="s">"revoke_sg_rule"</span>
+    input.target.environment != <span class="s">"production"</span>
+    input.finding.source == <span class="s">"agent_scan"</span>
+    <span class="k">not</span> change_freeze_active
+}
+
+<span class="c"># Everything else drops to supervised mode</span>
+escalate <span class="k">if</span> {
+    <span class="k">not</span> allow
+    input.action.risk_tier <= <span class="s">2</span>
+}</code></pre>
+
+    <p>Notice what this buys you beyond safety. The policy file <em>is</em> the conversation with your risk team. When they ask what the agent is allowed to do, you don't summarize a prompt — you hand them a diff-able artifact with an owner, a review history, and a test suite. When the envelope needs to grow, it grows through a pull request, not a prompt tweak someone made on a Thursday.</p>
+
+    <h2>The audit trail is the product</h2>
+
+    <p>Here's the part I underrated until I worked in model risk: the enforcement layer is also your evidence layer. Every decision — allowed, escalated, denied — lands in an append-only log with the policy version that made the call and the full input that triggered it. When something goes wrong (something will go wrong), you can replay the exact decision. When a regulator or an internal auditor asks how autonomous the system really is, the answer is a query, not a meeting.</p>
+
+    <p>An agent that acts and can <em>prove why</em> is a different product from an agent that acts. The first one gets deployed in environments that matter. The second one stays a demo.</p>
+
+    <p class="aside">A boundary worth stating: policy-as-code governs actions, not reasoning. It won't stop an agent from thinking something dumb — only from doing it. You still need evals, adversarial testing, and monitoring upstream. Guardrails are a layer, not the stack.</p>
+
+    <p>The teams that figure this out first won't be the ones with the smartest models. They'll be the ones whose agents can walk into a risk review and leave with an approval.</p>
+
+    <p class="endmark">∎</p>
+  </article>
+
+  <div class="share">
+    <a href="https://twitter.com/intent/tweet?text=Policy-as-code%20is%20the%20guardrail%20layer%20autonomous%20agents%20need&url=https%3A%2F%2Fshanmukha-y.github.io%2Fpolicy-as-code-agent-guardrails.html">share on x →</a>
+    <a href="mailto:shanmukha.yenneti@gmail.com?subject=Re:%20policy-as-code%20essay">reply via email →</a>
+  </div>
+
+  <nav class="pager" aria-label="Adjacent entries">
+    <a href="#"><span class="dir">←</span> 002 · what MRM taught me about governing agents</a>
+    <a href="index.html">the log <span class="dir">→</span></a>
+  </nav>
+
+  <footer>
+    <span>© 2026 shanmukha yenneti</span>
+    <a href="index.html">$ cd ~</a>
+  </footer>
+
+</div>
+</body>
+</html>
